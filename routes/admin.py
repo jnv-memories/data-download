@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, send_file, request
 from pathlib import Path
+import os
 
 from get_phonenumber import save, get_user
 from get_faculty_number import teacher
@@ -9,7 +10,17 @@ admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 DETAILS_XML = Path("details.xml")
 TEACHER_XML = Path("teacher_details.xml")
 
+@admin_bp.get("/debug")
+def debug():
 
+    return {
+        "cwd": os.getcwd(),
+        "files": os.listdir("."),
+        "details_exists": Path("details.xml").exists(),
+        "teacher_exists": Path("teacher_details.xml").exists(),
+        "details_xlsx": Path("details.xlsx").exists(),
+        "teacher_xlsx": Path("teacher_details.xlsx").exists(),
+    }
 @admin_bp.get("/health")
 def health():
     return jsonify({
