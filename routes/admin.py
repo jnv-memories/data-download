@@ -7,8 +7,8 @@ from get_faculty_number import teacher
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
-DETAILS_XML = Path("details.xml")
-TEACHER_XML = Path("teacher_details.xml")
+DETAILS_XML = Path("details.xlsx")
+TEACHER_XML = Path("teacher_details.xlsx")
 
 @admin_bp.get("/debug")
 def debug():
@@ -112,7 +112,7 @@ def download_details():
     return send_file(
         DETAILS_XML,
         as_attachment=True,
-        download_name="details.xml",
+        download_name="details.xlsx",
         mimetype="application/xml"
     )
 
