@@ -129,6 +129,6 @@ def download_teacher():
     return send_file(
         TEACHER_XML,
         as_attachment=True,
-        download_name="teacher_details.xml",
+        download_name="teacher_details.xlsx",
         mimetype="application/xml"
     )
