@@ -1,73 +1,125 @@
-import requests
-import json
-from openpyxl import Workbook, load_workbook
 import os
-headers = {"authorization":"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3ODM1NzQxMzkuNDY0LCJkYXRhIjp7Il9pZCI6IjZhMGFjZDA5ZDI4N2JkY2JhYjA3Njg5NiIsInVzZXJuYW1lIjoiNzAxNzI5ODA5NCIsImZpcnN0TmFtZSI6IiIsImxhc3ROYW1lIjoiIiwib3JnYW5pemF0aW9uIjp7Il9pZCI6IjVlYjM5M2VlOTVmYWI3NDY4YTc5ZDE4OSIsIndlYnNpdGUiOiJwaHlzaWNzd2FsbGFoLmNvbSIsIm5hbWUiOiJQaHlzaWNzd2FsbGFoIn0sInJvbGVzIjpbIjViMjdiZDk2NTg0MmY5NTBhNzc4YzZlZiJdLCJjb3VudHJ5R3JvdXAiOiJJTiIsIm9uZVJvbGVzIjpbXSwidHlwZSI6IlVTRVIifSwianRpIjoia3pMRUd0X1JTMmFWU2ZqTzU1anN4UV82YTBhY2QwOWQyODdiZGNiYWIwNzY4OTYiLCJpYXQiOjE3ODI5NjkzMzl9.4GEK1yBSGgci6yUBAI5Z6QLWy6Ndn2fsrdjzgP3ykjk"}
+import requests
+
+from openpyxl import Workbook, load_workbook
+
+from auth import get_headers
+
+
 main_api1 = "https://pw-api-gate.penpencil.co/v3/"
-comm_url = "community/posts/v2?channelId="
+
+EXCEL_FILE = "teacher_details.xlsx"
+ID_FILE = "teacher_id.txt"
+POINTER_FILE = "teacher_pointer.txt"
+USER_FILE = "user_id.txt"
+
 
 def write_unique(post_list):
-    excel_file = "teacher_details.xlsx"
-    id_file = "E:/react-app/pw test/text/teacher_id.txt"
-
     user_id = str(post_list[0]).strip()
 
-    if not os.path.exists(id_file):
-        open(id_file, "w").close()
+    if not os.path.exists(ID_FILE):
+        open(ID_FILE, "w").close()
 
-    with open(id_file, "r") as f:
+    with open(ID_FILE, "r", encoding="utf-8") as f:
         if user_id in {line.strip() for line in f}:
             return
 
-    if not os.path.exists(excel_file):
+    if not os.path.exists(EXCEL_FILE):
         wb = Workbook()
         ws = wb.active
         ws.title = "Teacher"
-        ws.append(["Teacher ID", "Name", "Mobile No", "Profile_Pic"])
-        wb.save(excel_file)
+        ws.append([
+            "Teacher ID",
+            "Name",
+            "Mobile No",
+            "Profile Pic"
+        ])
+        wb.save(EXCEL_FILE)
 
-    wb = load_workbook(excel_file)
+    wb = load_workbook(EXCEL_FILE)
     ws = wb.active
     ws.append(post_list)
-    wb.save(excel_file)
+    wb.save(EXCEL_FILE)
     wb.close()
 
-    # Save new user ID
-    with open(id_file, "a") as f:
+    with open(ID_FILE, "a", encoding="utf-8") as f:
         f.write(user_id + "\n")
 
-        
+
 def phone(user_id):
-    url = main_api1+"community/followers/list/"+user_id
-    response = requests.get(url, headers=headers)
-    json_dict = json.loads(response.text)
-    if len(json_dict['data'])!= 0:
-        output = json_dict['data']
-        for i in range(0,len(output)):
-            output_dict = output[i]
-            try:
-                post_list=[output_dict['follower_id'],output_dict['name'],output_dict['mobile'],output_dict['profileImage']]
-            except:
-                print("no profile image")
-                post_list=[output_dict['follower_id'],output_dict['name'],output_dict['mobile'],"null"]
-            write_unique(post_list)
-            print(post_list)
-    else:
-        print("empty")
+    url = main_api1 + "community/followers/list/" + str(user_id)
+
+    response = requests.get(
+        url,
+        headers=get_headers(),
+        timeout=30
+    )
+
+    json_dict = response.json()
+
+    data = json_dict.get("data", [])
+
+    if not data:
+        print("No followers found.")
+        return 0
+
+    count = 0
+
+    for output_dict in data:
+
+        post_list = [
+            output_dict.get("follower_id"),
+            output_dict.get("name"),
+            output_dict.get("mobile"),
+            output_dict.get("profileImage", "null")
+        ]
+
+        write_unique(post_list)
+
+        print(post_list)
+
+        count += 1
+
+    return count
+
 
 def teacher():
-    POINTER_FILE = "E:/react-app/pw test/text/teacher_pointer.txt"
-    with open(POINTER_FILE, "r") as pointer:
-        content = pointer.read().strip()
-        start_position = int(content)
-    with open("E:/react-app/pw test/text/user_id.txt") as f:
-        f.seek(start_position)
-        for line in f:
-            phone(line.strip())
-        current_position = f.tell()
-    with open(POINTER_FILE, "w") as file:
-        file.write(str(current_position))
-        print("writted")
 
-#teacher()
-#phone("65f0f6340c0043f9a787a3a0")
+    if not os.path.exists(USER_FILE):
+        raise FileNotFoundError(
+            "user_id.txt not found. Run save() first."
+        )
+
+    if not os.path.exists(POINTER_FILE):
+        with open(POINTER_FILE, "w") as f:
+            f.write("0")
+
+    with open(POINTER_FILE, "r", encoding="utf-8") as f:
+        pointer = int(f.read().strip() or "0")
+
+    processed = 0
+
+    with open(USER_FILE, "r", encoding="utf-8") as f:
+
+        f.seek(pointer)
+
+        for line in f:
+
+            user_id = line.strip()
+
+            if user_id:
+                phone(user_id)
+                processed += 1
+
+        new_pointer = f.tell()
+
+    with open(POINTER_FILE, "w", encoding="utf-8") as f:
+        f.write(str(new_pointer))
+
+    print(f"Processed {processed} users.")
+
+    return processed
+
+
+if __name__ == "__main__":
+    teacher()
