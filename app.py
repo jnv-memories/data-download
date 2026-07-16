@@ -9,7 +9,7 @@ app.register_blueprint(admin_bp)
 def home():
     return {
         "status": "running",
-        "service": "PW XML Generator"
+        "service": "PW XML Server"
     }
 
 if __name__ == "__main__":
