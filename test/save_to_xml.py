@@ -1,6 +1,6 @@
 import requests
 
-BASE = "http://127.0.0.1:5000"
+BASE = "https://data-download-ols5.onrender.com"
 
 r = requests.post(f"{BASE}/admin/save")
 
