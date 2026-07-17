@@ -136,3 +136,5 @@ def get_user(comm_id, page_id):
         follow(post["user_id"])
 
     return len(posts)
+get_user("6a0d5a03a4f9e66563c207be",9)
+save()

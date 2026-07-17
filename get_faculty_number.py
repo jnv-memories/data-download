@@ -9,6 +9,16 @@ ID_FILE = "teacher_id.txt"
 POINTER_FILE = "teacher_pointer.txt"
 USER_FILE = "user_id.txt"
 
+def unfollow(user):
+    url = main_api1 + "community/followers/"
+    payload = {"follow": False}
+    requests.post(
+        url + user,
+        headers=get_headers(),
+        json=payload,
+        timeout=30
+    )
+
 def write_unique(post_list):
     user_id = str(post_list[0]).strip()
     if not os.path.exists(ID_FILE):
@@ -35,28 +45,29 @@ def write_unique(post_list):
     with open(ID_FILE, "a", encoding="utf-8") as f:
         f.write(user_id + "\n")
 def phone(user_id):
-    url = main_api1 + "community/followers/list/" + str(user_id)
-    response = requests.get(
-        url,
-        headers=get_headers(),
-        timeout=30
-    )
-    json_dict = response.json()
-    data = json_dict.get("data", [])
-    if not data:
-        print("No followers found.")
-        return 0
-    count = 0
-    for output_dict in data:
-        post_list = [
-            output_dict.get("follower_id"),
-            output_dict.get("name"),
-            output_dict.get("mobile"),
-            output_dict.get("profileImage", "null")
-        ]
-        write_unique(post_list)
-        print(post_list)
-        count += 1
+    if user_id not in ["6a0acd09d287bdcbab076896","691028ae9961d23389b2b7a2"]:
+        url = main_api1 + "community/followers/list/" + str(user_id)
+        response = requests.get(
+            url,
+            headers=get_headers(),
+            timeout=30
+        )
+        json_dict = response.json()
+        data = json_dict.get("data", [])
+        if not data:
+            print("No followers found.")
+            return 0
+        count = 0
+        for output_dict in data:
+            post_list = [
+                output_dict.get("follower_id"),
+                output_dict.get("name"),
+                output_dict.get("mobile"),
+                output_dict.get("profileImage", "null")
+            ]
+            write_unique(post_list)
+            print(post_list)
+            count += 1
     return count
 def teacher():
     if not os.path.exists(USER_FILE):
@@ -82,6 +93,8 @@ def teacher():
     print(f"Processed {processed} users.")
     return processed
 
+def teacher_details():
+    pass
 
 if __name__ == "__main__":
     teacher()
