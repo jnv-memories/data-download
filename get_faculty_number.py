@@ -1,7 +1,7 @@
 import os
 import requests
 from openpyxl import Workbook, load_workbook
-from auth import get_headers
+from auth import get_headers,get_headers2
 import json
 
 main_api1 = "https://pw-api-gate.penpencil.co/v3/"
@@ -11,15 +11,30 @@ ID_FILE = "teacher_id.txt"
 POINTER_FILE = "teacher_pointer.txt"
 USER_FILE = "user_id.txt"
 
-def unfollow(user):
+def unfollow(teacher_id):
     url = main_api1 + "community/followers/"
     payload = {"follow": False}
     requests.post(
-        url + user,
-        headers=get_headers(),
+        url + teacher_id,
+        headers=get_headers2(),
         json=payload,
         timeout=30
     )
+
+def follow(teacher_id):
+    url = main_api1 + "community/followers/"
+    payload = {"follow": True}
+    response = requests.post(
+        url + teacher_id,
+        headers=get_headers2(),
+        json=payload,
+        timeout=30
+    )
+    try:
+        json_dict = response.json()
+        print("Already followed:", not json_dict.get("success", False))
+    except Exception:
+        print(response.text)
 
 def write_unique(post_list):
     user_id = str(post_list[0]).strip()
@@ -51,7 +66,7 @@ def phone(user_id):
         url = main_api1 + "community/followers/list/" + str(user_id)
         response = requests.get(
             url,
-            headers=get_headers(),
+            headers=get_headers2(),
             timeout=30
         )
         json_dict = response.json()
@@ -97,7 +112,7 @@ def teacher():
 
 def teacher_details():
     url = main_api2+"/v3/batches/69897f0a4c12aeb013d4ea52/details"
-    f = []
+    id_list = []
     r = requests.get(
         url,
         headers=get_headers(),
@@ -107,11 +122,18 @@ def teacher_details():
     for i in range(1,11):
         try:
             teacher_id = response["data"]["subjects"][i]["teacherIds"][0]["_id"]
-            f.append(teacher_id)
+            id_list.append(teacher_id)
         except:
             continue
-    #print(f)
-    return f
+    #print(id_list)
+    count = 0
+    for j in id_list:
+        follow(j)
+        phone("67ede0e33d2b29d82ad29f17")
+        unfollow(j)
+        count+=1
+    print(count)
+    return id_list,count
 
 if __name__ == "__main__":
     teacher_details()

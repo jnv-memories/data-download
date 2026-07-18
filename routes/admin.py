@@ -135,8 +135,9 @@ def download_teacher():
 
 @admin_bp.get("/download/teacher_id")
 def download_id():
-    id = teacher_details()
+    id,count = teacher_details()
     return jsonify({
             "success": True,
-            "Teacher_id": id
+            "Teacher_id": id,
+            "proccesed": count
         }), 200
