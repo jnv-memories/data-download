@@ -3,7 +3,7 @@ from pathlib import Path
 import os
 
 from get_phonenumber import save, get_user
-from get_faculty_number import teacher
+from get_faculty_number import teacher, teacher_details
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -132,3 +132,11 @@ def download_teacher():
         download_name="teacher_details.xlsx",
         mimetype="application/xml"
     )
+
+@admin_bp.get("/download/teacher_id")
+def download_id():
+    id = teacher_details()
+    return jsonify({
+            "success": True,
+            "Teacher_id": id
+        }), 200

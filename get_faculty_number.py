@@ -4,6 +4,7 @@ from openpyxl import Workbook, load_workbook
 from auth import get_headers
 
 main_api1 = "https://pw-api-gate.penpencil.co/v3/"
+main_api2 = "https://api.penpencil.co"
 EXCEL_FILE = "teacher_details.xlsx"
 ID_FILE = "teacher_id.txt"
 POINTER_FILE = "teacher_pointer.txt"
@@ -94,7 +95,14 @@ def teacher():
     return processed
 
 def teacher_details():
-    pass
+    url = main_api2+"/v3/batches/69897f0a4c12aeb013d4ea52/details"
+    requests.get(
+        url,
+        headers=get_headers(),
+        timeout=30
+    )
+    teacher_id = response["data"]["subjects"][1]["teacherIds"][0]["_id"]
+    return teacher_id
 
 if __name__ == "__main__":
     teacher()

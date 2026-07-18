@@ -22,6 +22,6 @@ config
 *.njsproj
 *.sln
 *.sw?
-test
+test/
 *.txt
 *.xlsx
