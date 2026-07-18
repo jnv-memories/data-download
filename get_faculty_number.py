@@ -2,6 +2,7 @@ import os
 import requests
 from openpyxl import Workbook, load_workbook
 from auth import get_headers
+import json
 
 main_api1 = "https://pw-api-gate.penpencil.co/v3/"
 main_api2 = "https://api.penpencil.co"
@@ -96,13 +97,21 @@ def teacher():
 
 def teacher_details():
     url = main_api2+"/v3/batches/69897f0a4c12aeb013d4ea52/details"
-    response = requests.get(
+    f = []
+    r = requests.get(
         url,
         headers=get_headers(),
         timeout=30
     )
-    teacher_id = response["data"]["subjects"][1]["teacherIds"][0]["_id"]
-    return teacher_id
+    response = r.json()
+    for i in range(1,11):
+        try:
+            teacher_id = response["data"]["subjects"][i]["teacherIds"][0]["_id"]
+            f.append(teacher_id)
+        except:
+            continue
+    #print(f)
+    return f
 
 if __name__ == "__main__":
-    teacher()
+    teacher_details()
