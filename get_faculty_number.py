@@ -96,7 +96,7 @@ def teacher():
 
 def teacher_details():
     url = main_api2+"/v3/batches/69897f0a4c12aeb013d4ea52/details"
-    requests.get(
+    response = requests.get(
         url,
         headers=get_headers(),
         timeout=30
