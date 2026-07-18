@@ -23,5 +23,3 @@ config
 *.sln
 *.sw?
 test/
-*.txt
-*.xlsx
