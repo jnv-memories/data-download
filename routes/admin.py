@@ -133,11 +133,14 @@ def download_teacher():
         mimetype="application/xml"
     )
 
-@admin_bp.get("/download/teacher_id")
+@admin_bp.get("/teacher_id")
 def download_id():
-    id,count = teacher_details()
+    body = request.get_json(silent=True)
+    batch_id = body.get("batch_id")
+    id,count = teacher_details(batch_id)
     return jsonify({
             "success": True,
             "Teacher_id": id,
+            "batch_id": batch_id,
             "proccesed": count
         }), 200

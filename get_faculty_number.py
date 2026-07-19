@@ -110,8 +110,8 @@ def teacher():
     print(f"Processed {processed} users.")
     return processed
 
-def teacher_details():
-    url = main_api2+"/v3/batches/69897f0a4c12aeb013d4ea52/details"
+def teacher_details(batch_id="69897f0a4c12aeb013d4ea52"):
+    url = main_api2+"/v3/batches/"+batch_id+"/details"
     id_list = []
     r = requests.get(
         url,
